@@ -1,7 +1,7 @@
 // Tcp over WebSocket (tcp2ws)
 // 基于ws的内网穿透工具
 // Sparkle 20210430
-// 11.1
+// 11.2
 
 package main
 
@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"os/signal"
 	"regexp"
 	"runtime"
@@ -596,6 +597,19 @@ func dnsPreferIp(hostname string) (string, uint32) {
 		} else {
 			log.Print(`Read System resolv.conf "/etc/resolv.conf" error: `, err)
 		}
+	} else {
+		// ipconfig /all 会输出系统设置的dns 依然由正则驱动
+		cmd := exec.Command("ipconfig", "/all")
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			log.Print("Run ipconfig error: ", err)
+		} else {
+			re := regexp.MustCompile(`(?m)^\s+DNS .+: ([0-9.]+)`)
+			matches := re.FindAllStringSubmatch(string(output), -1)
+			if len(matches) > 0 {
+				systemDns = matches[0][1]
+			}
+		}
 	}
 	r, _, err := uc.Exchange(&m, systemDns+":53")
 	if err != nil {
@@ -650,7 +664,7 @@ func dnsPreferIpWithTtl(hostname string, ttl uint32) {
 func main() {
 	arg_num := len(os.Args)
 	if arg_num < 3 {
-		fmt.Println("TCP over WebSocket (tcp2ws) with UDP support 11.1\nhttps://github.com/zanjie1999/tcp-over-websocket")
+		fmt.Println("TCP over WebSocket (tcp2ws) with UDP support 11.2\nhttps://github.com/zanjie1999/tcp-over-websocket")
 		fmt.Println("Client: ws://tcp2wsUrl localPort\nServer: ip:port tcp2wsPort\nUse wss: ip:port tcp2wsPort server.crt server.key")
 		fmt.Println("Make ssl cert:\nopenssl genrsa -out server.key 2048\nopenssl ecparam -genkey -name secp384r1 -out server.key\nopenssl req -new -x509 -sha256 -key server.key -out server.crt -days 36500")
 		os.Exit(0)
