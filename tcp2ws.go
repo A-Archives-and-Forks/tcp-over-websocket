@@ -589,7 +589,7 @@ func dnsPreferIp(hostname string) (string, uint32) {
 	if runtime.GOOS != "windows" {
 		resolv, err := ioutil.ReadFile("/etc/resolv.conf")
 		if err == nil {
-			re := regexp.MustCompile(`(?m)^nameserver[ \t]+([0-9.]+).*`)
+			re := regexp.MustCompile(`(?m)^nameserver[ \t]+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).*`)
 			matches := re.FindAllStringSubmatch(string(resolv), -1)
 			if len(matches) > 0 {
 				systemDns = matches[0][1]
@@ -604,7 +604,7 @@ func dnsPreferIp(hostname string) (string, uint32) {
 		if err != nil {
 			log.Print("Run ipconfig error: ", err)
 		} else {
-			re := regexp.MustCompile(`(?m)^\s+DNS1 .+: .+\n?.+?([0-9.]+)`)
+			re := regexp.MustCompile(`(?m)^\s+DNS .+: .+\n?.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})`)
 			matches := re.FindAllStringSubmatch(string(output), -1)
 			if len(matches) > 0 {
 				systemDns = matches[0][1]
