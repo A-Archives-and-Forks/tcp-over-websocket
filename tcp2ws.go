@@ -604,10 +604,24 @@ func dnsPreferIp(hostname string) (string, uint32) {
 		if err != nil {
 			log.Print("Run ipconfig error: ", err)
 		} else {
-			re := regexp.MustCompile(`(?m)^\s+DNS .+: .+\n?.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})`)
-			matches := re.FindAllStringSubmatch(string(output), -1)
-			if len(matches) > 0 {
-				systemDns = matches[0][1]
+			// 从DNS匹配到下一个项目
+			reBlock := regexp.MustCompile(`(?s)DNS\s+[^:]+:\s*([\s\S]+?)(?:\r?\n\s{1,8}[^\s\.]|$)`)
+			reIPv4 := regexp.MustCompile(`\b(?:\d{1,3}\.){3}\d{1,3}\b`)
+			blocks := reBlock.FindAllStringSubmatch(string(output), -1)
+			for _, match := range blocks {
+				if len(match) < 2 {
+					continue
+				}
+				// 只要IPv4
+				ipv4s := reIPv4.FindAllString(match[1], -1)
+				if len(ipv4s) > 0 {
+					for _, ip := range ipv4s {
+						if ip != "0.0.0.0" {
+							systemDns = ip
+							break
+						}
+					}
+				}
 			}
 		}
 	}
