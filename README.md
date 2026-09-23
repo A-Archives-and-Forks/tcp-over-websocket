@@ -6,6 +6,11 @@
 也就是UDP over WebSocket (UDP to WebSocket, udp2ws) 并没有独立成新程序，写在一起了  
 启动时会同时转发指定的端口的TCP和UDP流量  
 
+不欢迎这种生物使用，开源项目不代表无条件为你服务，还要给你负责售后  
+遇到问题先找自己问题，我好声好气解释问题换来的却是我“说话难听”
+<img width="800" height="656" alt="image" src="https://github.com/user-attachments/assets/4157c914-7ec2-4459-8404-6caf11f2ad89" />
+
+
 ## 因为经常修改优化，所以请Star，不要Fork  
 ### 至于这样脱裤子放屁的操作有什么用？  
 举个例子，一个服务器只能通过cdn的http转发（或者https），它也不能联网，这时你就可以利用此工具将需要转发的端口（比如22）转换成ws协议（http）来传输，再去Nginx里面配一个反向代理，那么当本客户端访问Nginx提供的服务的特定路径时将反代到本服务端，实现内网穿透进行端口转发  
